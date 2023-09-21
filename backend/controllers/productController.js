@@ -2,10 +2,11 @@ const db = require('../models/index');
 const { Sequelize, Op, json } = require('sequelize');
 const Product = db.product;
 
+
+
 const addProduct = async (req, res) => {
   try {
     const productInfo = req.body;
-    console.log(productInfo);
     const productID = Math.floor(100000 + Math.random() * 900000);
     const product = productInfo.map((input) => ({
       productID,
@@ -23,6 +24,9 @@ const addProduct = async (req, res) => {
     return res.status(500).json({ statuscode: 500, error: error.message });
   }
 }
+
+
+
 const showProduct = async (req, res) => {
   try {
     const product = await Product.findAll();
@@ -48,6 +52,9 @@ const showProduct = async (req, res) => {
     return res.status(500).json({ statuscode: 500, error: error.message })
   }
 }
+
+
+
 const showAllProduct = async (req, res) => {
   try {
     const productID = req.body.productID;
@@ -69,45 +76,38 @@ const showAllProduct = async (req, res) => {
   }
 };
 
+
+
+
 const editProduct = async (req, res) => {
   try {
     const productInfo = req.body;
-    
     for (const item of productInfo) {
       const id = item.id;
       const productID = item.productId;
       const rate = item.rate;
       const discount = item.discount;
       const price = item.price;
-
-      console.log(id, productID, rate, discount, price);
-
       const product = await Product.count({ where: { productID, id } });
-      console.log(product);
-
       if (product === 0) {
         const newProduct = await Product.create({ id, productID, rate, discount, price });
-        console.log(newProduct);
-
         const count = await Product.count({ where: { productID } });
-
         if (count) {
           const newProducts = await Product.update({ count }, { where: { productID } });
         }
-
         return res.status(200).json({ statuscode: 200, message: "Added", newProduct });
       } else {
         const updateProduct = await Product.update({ rate, discount, price }, { where: { id } });
-        console.log(updateProduct);
-
         return res.status(200).json({ statuscode: 200, message: "Updated", updateProduct });
       }
     }
   } catch (error) {
-    console.error(error);
     return res.status(500).json({ statuscode: 500, message: error.message });
   }
 };
+
+
+
 
 const deleteProduct = async (req, res) => {
   try {

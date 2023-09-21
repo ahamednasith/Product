@@ -1,22 +1,22 @@
-module.exports = (sequelize,DataTypes) => {
-    const Product = sequelize.define('product',{
-        productID:{
+module.exports = (sequelize, DataTypes) => {
+    const Product = sequelize.define('product', {
+        productID: {
             type: DataTypes.INTEGER
         },
-        rate:{
+        rate: {
             type: DataTypes.INTEGER
         },
-        discount:{
+        discount: {
             type: DataTypes.INTEGER
         },
-        price:{
+        price: {
             type: DataTypes.INTEGER
         },
-        count:{
+        count: {
             type: DataTypes.INTEGER
         }
-    },{
-        timestamps:false
+    }, {
+        timestamps: false
     });
     return Product;
 }
