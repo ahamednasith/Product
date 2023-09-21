@@ -82,25 +82,48 @@ const showAllProduct = async (req, res) => {
 const editProduct = async (req, res) => {
   try {
     const productInfo = req.body;
+    console.log(productInfo);
+    const productID = productInfo.map(item => item.productID) ;
+    console.log(productID);
+    const providedIds = productInfo.map(item => item.id || 0);
+    const givenID =[];
     for (const item of productInfo) {
       const id = item.id;
-      const productID = item.productId;
+      const productID = item.productID;
       const rate = item.rate;
       const discount = item.discount;
       const price = item.price;
+      console.log(providedIds);
       const product = await Product.count({ where: { productID, id } });
+      console.log(product);
       if (product === 0) {
-        const newProduct = await Product.create({ id, productID, rate, discount, price });
+        console.log(id,productID,rate,discount,price)
+        const newProduct = await Product.create({ productID, rate, discount, price });
+        console.log(newProduct)
+        if(newProduct){
+          console.log(newProduct.id);
+        givenID.push(newProduct.id);
+        }
         const count = await Product.count({ where: { productID } });
         if (count) {
           const newProducts = await Product.update({ count }, { where: { productID } });
         }
-        return res.status(200).json({ statuscode: 200, message: "Added", newProduct });
       } else {
         const updateProduct = await Product.update({ rate, discount, price }, { where: { id } });
-        return res.status(200).json({ statuscode: 200, message: "Updated", updateProduct });
       }
     }
+    console.log(givenID);
+    const IDs = givenID.concat(providedIds);
+    console.log(IDs);
+    const removeProducts = await Product.destroy({where:{productID,id:{[Sequelize.Op.notIn]:IDs}}})
+    if(removeProducts){
+      const count = await Product.count({ where: { productID } });
+        if (count) {
+          const newProducts = await Product.update({ count }, { where: { productID } });
+        }
+    }
+    console.log(removeProducts);
+    return res.status(200).json({ statuscode: 200, message: "Updated",removeProducts });
   } catch (error) {
     return res.status(500).json({ statuscode: 500, message: error.message });
   }
@@ -109,24 +132,6 @@ const editProduct = async (req, res) => {
 
 
 
-const deleteProduct = async (req, res) => {
-  try {
-    const productID = req.body.productID;
-    const product = await Product.findAll({ where: { productID } });
-    if (product) {
-      const id = req.body.id;
-      const products = await Product.destroy({ where: { id } })
-      if (products) {
-        const count = await Product.count({ where: { productID } });
-        if (count) {
-          const newProducts = await Product.update({ count }, { where: { productID } });
-        }
-      }
-      return res.status(200).json({ statuscode: 200, message: "updated", products })
-    }
-  } catch (error) {
-    return res.status(500).json({ statuscode: 500, error: error.message })
-  }
-}
 
-module.exports = { addProduct, showAllProduct, showProduct, editProduct, deleteProduct };
+
+module.exports = { addProduct, showAllProduct, showProduct, editProduct };

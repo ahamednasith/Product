@@ -3,7 +3,6 @@ import { Helmet } from "react-helmet";
 import axios from "axios";
 import './index.css';
 import { Link, useNavigate, useParams } from "react-router-dom";
-import del from '../../delete.jpeg';
 
 
 
@@ -24,6 +23,7 @@ export default function Action() {
         try {
             const response = await axios.post('http://localhost:3000/product/all', { productID });
             setProductDatas(response.data.productData);
+            console.log(productDatas)
         } catch (error) {
             console.log({ error: error.message })
         }
@@ -34,6 +34,7 @@ export default function Action() {
         let data = [...productDatas];
         data.splice(index, 1)
         setProductDatas(data)
+        console.log(productDatas)
     }
 
 
@@ -83,40 +84,24 @@ export default function Action() {
 
     const handleEdit = async (e) => {
         const error = validation(productDatas);
+        const ProductDatas = productDatas.map(item => ({
+          ...item,
+          productID: item.productID || productID 
+        }));
         if (error) {
-            productDatas.forEach(async (item) => {
-                const id = item.id || 0;
-                const productId = item.productID ?? productID;
-                const rate = item.rate;
-                const discount = item.discount;
-                const price = item.price;
-                try {
-                    const response = await axios.post('http://localhost:3000/product/update', [{ id, productId, rate, discount, price }]);
-                    if (response) {
-                        navigate('/session');
-                    }
-                    else {
-                        console.log(error);
-                    }
-                } catch (error) {
-                    console.log({ error: error.message })
-                }
-            })
+          try {
+            const response = await axios.post('http://localhost:3000/product/update', ProductDatas);
+            if(response.data){
+                navigate('/session');
+            }
+            console.log(response.data);
+          } catch (error) {
+            console.log({ error: error.message });
+          }
         } else {
-            console.log(error);
+          console.log(error);
         }
     }
-
-
-    const handleDelete = async (productID, id) => {
-        try {
-            const response = await axios.post('http://localhost:3000/product/delete', { productID, id });
-            window.location.reload();
-        } catch (error) {
-            console.log({ error: error.message })
-        }
-    }
-
 
     useEffect(() => {
         handleShow();
@@ -155,7 +140,6 @@ export default function Action() {
                                 <input type="text" name="price" value={item.price} class="relative top-[4px] -right-[90px] text-[18px] w-[125px] h-[50px] rounded-[25px] rounded-l-[0px] border-solid border-[1px] border-[#e65151] border-l-[0px] bg-[#000] pl-[0px] text-[#fff]" onChange={e => handleInputChange(e, index, 'price')}></input>
                                 <span class="text-[#E80A0A] relative top-[50px] -left-[105px]">{item.rateValid}</span>
                             </div>
-                            <button type="button" onClick={() => { handleDelete(item.productID, item.id) }} class="flex bg-[#C5f601] w-[100px] h-[40px] pt-[10px] relative top-[50px] left-[100px] rounded-[30px] text-[15px] hover:bg-[#fff]"><img class="w-[40px] pl-[15px]" src={del} alt="delete" /> Delete </button>
                             {index === 0 ? '' : <button type="button" class="bg-[#3F66D9] w-[80px] h-[35px] relative -right-[210px] top-[68px] rounded-[30px] border-solid border-[1px] items-center border-[#fff] hover:bg-[#fff]" onClick={() => handleRemove(index)}>Remove</button>}
                         </div>
                     </form>
