@@ -71,37 +71,44 @@ const showAllProduct = async (req, res) => {
 
 const editProduct = async (req, res) => {
   try {
-    const productInfo =req.body;
-    console.log(productInfo)
-    productInfo.forEach(async (item) => {
-    const id =item.id;
-    const productID = item.productId;
-    const rate = item.rate;
-    const discount = item.discount;
-    const price = item.price;
-    console.log(id,productID,rate,discount,price);
-    const product = await Product.count({where:{productID,id}})
-    console.log(product);
-    if(product == 0){
-      const newProduct = await Product.bulkCreate([{id,productID,rate,discount,price}]);
-      console.log(newProduct)
-      if(newProduct){
-        const count = await Product.count({ where: [{ productID }] });
+    const productInfo = req.body;
+    
+    for (const item of productInfo) {
+      const id = item.id;
+      const productID = item.productId;
+      const rate = item.rate;
+      const discount = item.discount;
+      const price = item.price;
+
+      console.log(id, productID, rate, discount, price);
+
+      const product = await Product.count({ where: { productID, id } });
+      console.log(product);
+
+      if (product === 0) {
+        const newProduct = await Product.create({ id, productID, rate, discount, price });
+        console.log(newProduct);
+
+        const count = await Product.count({ where: { productID } });
+
         if (count) {
           const newProducts = await Product.update({ count }, { where: { productID } });
         }
+
+        return res.status(200).json({ statuscode: 200, message: "Added", newProduct });
+      } else {
+        const updateProduct = await Product.update({ rate, discount, price }, { where: { id } });
+        console.log(updateProduct);
+
+        return res.status(200).json({ statuscode: 200, message: "Updated", updateProduct });
       }
-      return res.status(200).json({statuscode:200,message:"Added",newProduct})
-    } else {
-      const updateProduct = await Product.update({rate,discount,price},{where:{id}});
-      console.log(updateProduct);
-      return res.status(500).json({statuscode:500,message:"updated",updateProduct})
     }
-  })
   } catch (error) {
-    return res.status(500).json({error:error.message})
+    console.error(error);
+    return res.status(500).json({ statuscode: 500, message: error.message });
   }
-}
+};
+
 const deleteProduct = async (req, res) => {
   try {
     const productID = req.body.productID;
