@@ -7,6 +7,8 @@ import { Link, useNavigate } from "react-router-dom";
 export default function Form() {
   const [products, setProducts] = useState([{ rate: '', discount: '', price: '' }]);
   const navigate = useNavigate();
+
+
   const handleInput = (index, e) => {
     const updatedProducts = [...products];
     updatedProducts[index][e.target.name] = e.target.value;
@@ -18,15 +20,21 @@ export default function Form() {
     }
     setProducts(updatedProducts);
   };
+
+
   const handleAdd = () => {
     const product = { rate: '', discount: '', price: '' };
     setProducts([...products, product]);
   }
+
+
   const handleRemove = async (index) => {
     let data = [...products];
     data.splice(index, 1)
     setProducts(data)
   }
+
+
   const validation = (products) => {
     const data = [...products];
     let valid = true;
@@ -56,6 +64,8 @@ export default function Form() {
     setProducts(data);
     return valid;
   }
+
+
   const handleSubmit = async (e) => {
     try {
       e.preventDefault()
@@ -72,7 +82,8 @@ export default function Form() {
       console.log({ error: error.message })
     }
   }
-  console.log(products);
+
+  
   return (
     <div>
       <Helmet>

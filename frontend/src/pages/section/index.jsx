@@ -9,6 +9,8 @@ import { Link } from "react-router-dom";
 
 export default function Session() {
     const [productData, setProductData] = useState([]);
+
+
     const handleSection = async () => {
         try {
             const response = await axios.get('http://localhost:3000/product', { productData });
@@ -17,9 +19,13 @@ export default function Session() {
             console.log({ error: error.message })
         }
     }
+
+
     useEffect(() => {
         handleSection();
     }, [])
+
+    
     return (
         <div>
             <Helmet>

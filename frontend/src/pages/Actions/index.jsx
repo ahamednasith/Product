@@ -12,10 +12,14 @@ export default function Action() {
     const { productID } = useParams();
     const [productDatas, setProductDatas] = useState([]);
     const navigate = useNavigate();
+
+
     const handleAdd = () => {
         const product = { id: '', rate: '', discount: '', price: '', };
         setProductDatas([...productDatas, product]);
     }
+
+
     const handleShow = async () => {
         try {
             const response = await axios.post('http://localhost:3000/product/all', { productID });
@@ -24,11 +28,15 @@ export default function Action() {
             console.log({ error: error.message })
         }
     }
+
+
     const handleRemove = async (index) => {
         let data = [...productDatas];
         data.splice(index, 1)
         setProductDatas(data)
     }
+
+
     const handleInputChange = (e, index, fieldName) => {
         const updatedProductDatas = [...productDatas];
         updatedProductDatas[index][fieldName] = e.target.value;
@@ -40,6 +48,8 @@ export default function Action() {
         }
         setProductDatas(updatedProductDatas);
     }
+
+
     const validation = (productDatas) => {
         const data = [...productDatas];
         let valid = true;
@@ -69,6 +79,8 @@ export default function Action() {
         setProductDatas(data);
         return valid;
     }
+
+
     const handleEdit = async (e) => {
         const error = validation(productDatas);
         if (error) {
@@ -94,6 +106,8 @@ export default function Action() {
             console.log(error);
         }
     }
+
+
     const handleDelete = async (productID, id) => {
         try {
             const response = await axios.post('http://localhost:3000/product/delete', { productID, id });
@@ -102,9 +116,13 @@ export default function Action() {
             console.log({ error: error.message })
         }
     }
+
+
     useEffect(() => {
         handleShow();
     }, [])
+
+
     return (
         <div>
             <Helmet>
