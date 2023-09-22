@@ -82,27 +82,21 @@ const showAllProduct = async (req, res) => {
 const editProduct = async (req, res) => {
   try {
     const productInfo = req.body;
-    console.log(productInfo);
-    const productID = productInfo.map(item => item.productID) ;
-    console.log(productID);
+    const productID = productInfo.map(item => item.productID);
     const providedIds = productInfo.map(item => item.id || 0);
-    const givenID =[];
+    const givenID = [];
     for (const item of productInfo) {
       const id = item.id;
       const productID = item.productID;
       const rate = item.rate;
       const discount = item.discount;
       const price = item.price;
-      console.log(providedIds);
       const product = await Product.count({ where: { productID, id } });
-      console.log(product);
       if (product === 0) {
-        console.log(id,productID,rate,discount,price)
+        console.log(id, productID, rate, discount, price)
         const newProduct = await Product.create({ productID, rate, discount, price });
-        console.log(newProduct)
-        if(newProduct){
-          console.log(newProduct.id);
-        givenID.push(newProduct.id);
+        if (newProduct) {
+          givenID.push(newProduct.id);
         }
         const count = await Product.count({ where: { productID } });
         if (count) {
@@ -112,26 +106,32 @@ const editProduct = async (req, res) => {
         const updateProduct = await Product.update({ rate, discount, price }, { where: { id } });
       }
     }
-    console.log(givenID);
     const IDs = givenID.concat(providedIds);
-    console.log(IDs);
-    const removeProducts = await Product.destroy({where:{productID,id:{[Sequelize.Op.notIn]:IDs}}})
-    if(removeProducts){
+    const removeProducts = await Product.destroy({ where: { productID, id: { [Sequelize.Op.notIn]: IDs } } })
+    if (removeProducts) {
       const count = await Product.count({ where: { productID } });
-        if (count) {
-          const newProducts = await Product.update({ count }, { where: { productID } });
-        }
+      if (count) {
+        const newProducts = await Product.update({ count }, { where: { productID } });
+      }
     }
-    console.log(removeProducts);
-    return res.status(200).json({ statuscode: 200, message: "Updated",removeProducts });
+    return res.status(200).json({ statuscode: 200, message: "Updated", removeProducts });
   } catch (error) {
     return res.status(500).json({ statuscode: 500, message: error.message });
   }
 };
 
+const deleteProduct = async (req, res) => {
+  try {
+    const productInfo = req.body;
+    const productID = productInfo.map(item => item.productID);
+    const remove = await Product.destroy({ where: { productId: productID } })
+      ; return res.status(200).json({ statuscode: 200, message: "deleted" })
+  } catch (error) {
+    return res.status(500).json({ statuscode: 500, error: error.message })
+  }
+}
 
 
 
 
-
-module.exports = { addProduct, showAllProduct, showProduct, editProduct };
+module.exports = { addProduct, showAllProduct, showProduct, editProduct, deleteProduct };

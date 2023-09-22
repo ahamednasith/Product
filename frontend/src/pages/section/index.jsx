@@ -20,12 +20,23 @@ export default function Session() {
         }
     }
 
+    const handleDelete = async (productID) => {
+        try {
+            const response = await axios.post('http://localhost:3000/product/delete', [{ productID }]);
+            window.location.reload();
+            console.log(response.data);
+        } catch (error) {
+            console.log({ error: error.message })
+        }
+    }
+
 
     useEffect(() => {
         handleSection();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
-    
+
     return (
         <div>
             <Helmet>
@@ -51,7 +62,7 @@ export default function Session() {
                                 <td class="border border-[#C5f601] boredr-[1px] text-center">{item.productID}</td>
                                 <td class="border border-[#C5f601] boredr-[1px] text-center">{item.count}</td>
                                 <td class="border border-[#C5f601] border-[1px] pl-[8px] text-center w-[80px]"><Link to={`/action/${item.productID}`}><img class="w-[50px] pl-[15px]" src={modify} alt="modify" /></Link></td>
-                                <td class="border border-[#C5f601] pl-[13px] border-[1px] text-center w-[80px]"><Link to={`/action/${item.productID}`} ><img class="w-[40px] pl-[15px]" src={del} alt="delete" /></Link></td>
+                                <td class="border border-[#C5f601] pl-[13px] border-[1px] text-center w-[80px]" onClick={() => handleDelete(item.productID)}><img class="w-[40px] pl-[15px]" src={del} alt="delete" /></td>
                             </tr>
                         ))}
                     </table>

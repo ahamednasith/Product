@@ -23,7 +23,6 @@ export default function Action() {
         try {
             const response = await axios.post('http://localhost:3000/product/all', { productID });
             setProductDatas(response.data.productData);
-            console.log(productDatas)
         } catch (error) {
             console.log({ error: error.message })
         }
@@ -34,7 +33,6 @@ export default function Action() {
         let data = [...productDatas];
         data.splice(index, 1)
         setProductDatas(data)
-        console.log(productDatas)
     }
 
 
@@ -85,26 +83,26 @@ export default function Action() {
     const handleEdit = async (e) => {
         const error = validation(productDatas);
         const ProductDatas = productDatas.map(item => ({
-          ...item,
-          productID: item.productID || productID 
+            ...item,
+            productID: item.productID || productID
         }));
         if (error) {
-          try {
-            const response = await axios.post('http://localhost:3000/product/update', ProductDatas);
-            if(response.data){
-                navigate('/session');
+            try {
+                const response = await axios.post('http://localhost:3000/product/update', ProductDatas);
+                if (response.data) {
+                    navigate('/session');
+                }
+            } catch (error) {
+                console.log({ error: error.message });
             }
-            console.log(response.data);
-          } catch (error) {
-            console.log({ error: error.message });
-          }
         } else {
-          console.log(error);
+            console.log(error);
         }
     }
 
     useEffect(() => {
         handleShow();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
 
@@ -118,7 +116,7 @@ export default function Action() {
                 <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet" />
             </Helmet>
             <section id="info" class="block justify-center items-center h-[1400px]">
-                <Link to='/session' class="flex justify-center items-center text-[20px] absolute bg-[#168cb9] top-[100px] left-[1900px] w-[100px] h-[50px] rounded-[10px] hover:bg-[#fff]">Back </Link>
+                <Link to='/session' class="flex justify-center items-center text-[20px] absolute bg-[#168cb9] top-[100px] left-[1900px] w-[100px] h-[50px] rounded-[10px] hover:bg-[#fff] hover:border-[3px] hover:border-[#168cb9]">Back </Link>
                 <h1 class="text-[40px] text-[#fff] pt-[100px] pl-[1050px]">Product Information </h1>
                 {productDatas.map((item, index) => (
                     <form key={index} class="block justify-between items-center pt-[20px] px-[480px]">
@@ -140,12 +138,12 @@ export default function Action() {
                                 <input type="text" name="price" value={item.price} class="relative top-[4px] -right-[90px] text-[18px] w-[125px] h-[50px] rounded-[25px] rounded-l-[0px] border-solid border-[1px] border-[#e65151] border-l-[0px] bg-[#000] pl-[0px] text-[#fff]" onChange={e => handleInputChange(e, index, 'price')}></input>
                                 <span class="text-[#E80A0A] relative top-[50px] -left-[105px]">{item.rateValid}</span>
                             </div>
-                            {index === 0 ? '' : <button type="button" class="bg-[#3F66D9] w-[80px] h-[35px] relative -right-[210px] top-[68px] rounded-[30px] border-solid border-[1px] items-center border-[#fff] hover:bg-[#fff]" onClick={() => handleRemove(index)}>Remove</button>}
+                            {productDatas.length > 1 && (<button type="button" class="bg-[#3F66D9] w-[80px] h-[35px] relative -right-[210px] top-[68px] rounded-[30px] border-solid border-[1px] items-center border-[#fff] hover:bg-[#fff] hover:border-[#3F66D9] hover:border-[3px]" onClick={() => handleRemove(index)}>Remove</button>)}
                         </div>
                     </form>
                 ))}
-                <button type="button" onClick={() => (handleEdit())} class="bg-[#C5f601] w-[200px] h-[50px] relative top-[50px] left-[1200px] text-center pt-[10px] rounded-[30px] text-[20px] hover:bg-[#fff]">Submit</button>
-                <button type="button" class="bg-[#E80A0A] w-[80px] h-[35px] relative -right-[1800px] -bottom-[30px] rounded-[30px] border-solid border-[1px] items-center border-[#fff] hover:bg-[#fff]" onClick={handleAdd}>ADD</button>
+                <button type="button" onClick={() => (handleEdit())} class="bg-[#C5f601] w-[200px] h-[50px] relative top-[50px] left-[1200px] text-center rounded-[30px] text-[20px] hover:bg-[#fff] hover:border-[#C5f602] hover:border-[3px]">Submit</button>
+                <button type="button" class="bg-[#E80A0A] w-[80px] h-[35px] relative -right-[1800px] -bottom-[30px] rounded-[30px] border-solid border-[1px] items-center border-[#fff] hover:bg-[#fff] hover:border-[2px] hover:border-[#E80A0A]" onClick={handleAdd}>ADD</button>
             </section>
         </div>
     )
