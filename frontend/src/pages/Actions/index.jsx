@@ -14,7 +14,7 @@ export default function Action() {
 
 
     const handleAdd = () => {
-        const product = { id: '', rate: '', discount: '', price: '', };
+        const product = { id: '', rate: '', discount: '', price: '', image: '',preview:''};
         setProductDatas([...productDatas, product]);
     }
 
@@ -36,23 +36,36 @@ export default function Action() {
     }
 
 
-    const handleInputChange = (e, index, fieldName) => {
+    const handleInputChange = (index, e) => {
         const updatedProductDatas = [...productDatas];
-        updatedProductDatas[index][fieldName] = e.target.value;
-        const rate = parseFloat(updatedProductDatas[index]['rate']);
-        const discount = parseFloat(updatedProductDatas[index]['discount']);
-        if (!isNaN(rate) && !isNaN(discount)) {
-            const price = rate - (rate * (discount / 100));
-            updatedProductDatas[index]['price'] = price;
+        if (e.target.name === 'image') {
+            updatedProductDatas[index]['image'] = e.target.files[0];
+            updatedProductDatas[index]['preview'] = URL.createObjectURL(e.target.files[0])
+            setProductDatas(updatedProductDatas)
+        } else {
+            updatedProductDatas[index][e.target.name] = e.target.value;
+            const rate = parseFloat(updatedProductDatas[index]['rate']);
+            const discount = parseFloat(updatedProductDatas[index]['discount']);
+            if (!isNaN(rate) && !isNaN(discount)) {
+                const price = rate - (rate * (discount / 100));
+                updatedProductDatas[index]['price'] = price.toFixed(2);
+            }
         }
         setProductDatas(updatedProductDatas);
-    }
+    };
 
 
     const validation = (productDatas) => {
         const data = [...productDatas];
         let valid = true;
         for (let i = 0; i < data.length; i++) {
+            if (data[i].image === "") {
+                data[i].imageValid = "Image has Required";
+                valid = false;
+            } else {
+                data[i].imageValid = ""
+                valid = true;
+            }
             if (data[i].rate === "") {
                 data[i].rateValid = "Rate has Required";
                 valid = false;
@@ -82,13 +95,22 @@ export default function Action() {
 
     const handleEdit = async (e) => {
         const error = validation(productDatas);
-        const ProductDatas = productDatas.map(item => ({
-            ...item,
-            productID: item.productID || productID
-        }));
+        const formData = new FormData();
+        productDatas.forEach((item, index) => {
+            formData.append(`products[${index}][id]`, item.id);
+            formData.append(`products[${index}][productID]`, item.productID || productID);
+            formData.append(`products[${index}][rate]`, item.rate);
+            formData.append(`products[${index}][discount]`, item.discount);
+            formData.append(`products[${index}][price]`, item.price);
+            formData.append('productImages', item.image)
+        });
         if (error) {
             try {
-                const response = await axios.post('http://localhost:3000/product/update', ProductDatas);
+                const response = await axios.post('http://localhost:3000/product/update', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                });
                 if (response.data) {
                     navigate('/session');
                 }
@@ -98,11 +120,11 @@ export default function Action() {
         } else {
             console.log(error);
         }
-    }
+    };
 
     useEffect(() => {
         handleShow();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
     }, [])
 
 
@@ -120,25 +142,31 @@ export default function Action() {
                 <h1 class="text-[40px] text-[#fff] pt-[100px] pl-[1050px]">Product Information </h1>
                 {productDatas.map((item, index) => (
                     <form key={index} class="block justify-between items-center pt-[20px] px-[480px]">
-                        <div class="flex  justify-center  items-center border-[2px] border-solid border-[#C5f601] rounded-[30px]  min-w-[1300px] min-h-[250px]">
-                            <div>
-                                <label class="text-[#C5f602] text-[26px] relative -top-[40px]">Rate</label>
-                                <input type="text" name="rate" placeholder="Product Rate" value={item.rate} class="relative top-[4px] -left-[150px] text-[18px] w-[250px] h-[50px] rounded-[25px] border-solid border-[1px] border-[#e65151] bg-[#000] text-center text-[#fff]" onChange={e => handleInputChange(e, index, 'rate')}></input>
-                                <span class="text-[#E80A0A] relative top-[50px] -left-[350px]">{item.rateValid}</span>
+                        <div class="flex  justify-center  items-center border-[2px] border-solid border-[#C5f601] rounded-[30px]  min-w-[1900px] min-h-[250px]">
+                            <div class="block">
+                                <label class="text-[#C5f602] text-[26px] relative -top-[60px] left-[40px]">Image</label>
+                                <input type="file" name="image" class="relative -top-[10px] -left-[100px] text-[18px] w-[200px] h-[50px] pt-[8px] rounded-[25px] border-solid border-[1px] border-[#e65151] bg-[#000] text-[#fff]" onChange={e => handleInputChange(index, e)}></input>
+                                <span class="text-[#E80A0A] relative top-[50px] -left-[270px]">{item.imageValid}</span>
                             </div>
-                            <div>
-                                <label class="text-[#C5f602] text-[26px] relative  -top-[14px] left-[110px]">Discount</label>
-                                <input type="text" name="discount" placeholder="Product Discount" value={item.discount} class="relative top-[29px] -left-[62px] text-center w-[200px] h-[50px] rounded-[25px] rounded-r-[0px] text-[18px] border-solid border-[1px] border-[#e65151] bg-[#000] pl-[30px] text-[#fff] z-[0]" onChange={e => handleInputChange(e, index, 'discount')} ></input>
-                                <div class="relative -top-[21px] -right-[245px] text-[20px] rounded-r-[30px] text-center pt-[10px] border-l-[0px] w-[50px] h-[50px] border-solid border-[1px] border-[#e65151] bg-[#000] text-[#ffffff69] z-[1]">%</div>
-                                <span class="text-[#E80A0A] relative left-[80px]">{item.discountValid}</span>
+                            {item.preview ? (<img src={item.preview} alt="preview" class="w-[200px] relative -left-[70px] -top-[10px] border-[1px]" />):item.image ? (<img src={item.image} alt="preview" class="w-[200px] relative -left-[70px] -top-[10px] border-[1px]" />):null}
+                            <div class="block">
+                                <label class="text-[#C5f602] text-[26px] relative -top-[60px] left-[145px]">Rate</label>
+                                <input type="text" name="rate" value={item.rate} placeholder="Product Rate" class="relative -top-[10px] left-[0px] text-[18px] w-[250px] h-[50px] rounded-[25px] border-solid border-[1px] border-[#e65151] bg-[#000] pl-[70px] text-[#fff]" onChange={e => handleInputChange(index, e)}></input>
+                                <span class="text-[#E80A0A] relative top-[50px] -left-[200px]">{item.rateValid}</span>
                             </div>
-                            <div>
-                                <label class="text-[#C5f602] text-[26px] relative -top-[40px] -right-[250px]">Price</label>
-                                <input type="text" name="price" value={item.rate} class="text-[18px] relative top-[4px] -right-[100px] w-[125px] h-[50px] rounded-[25px] rounded-r-[0px] border-solid border-[1px] border-[#e65151] bg-[#000] pl-[50px] line-through decoration-black text-[#C5f602]"></input>
-                                <input type="text" name="price" value={item.price} class="relative top-[4px] -right-[90px] text-[18px] w-[125px] h-[50px] rounded-[25px] rounded-l-[0px] border-solid border-[1px] border-[#e65151] border-l-[0px] bg-[#000] pl-[0px] text-[#fff]" onChange={e => handleInputChange(e, index, 'price')}></input>
-                                <span class="text-[#E80A0A] relative top-[50px] -left-[105px]">{item.rateValid}</span>
+                            <div class="block">
+                                <label class="text-[#C5f602] text-[26px] relative  -top-[35px] left-[145px]">Discount</label>
+                                <input type="text" name="discount" placeholder="Product Discount" value={item.discount} class="relative top-[27px] -left-[30px] w-[200px] h-[50px] rounded-[25px] rounded-r-[0px] text-[18px] border-solid border-[1px] border-[#e65151] bg-[#000] pl-[30px] text-[#fff] z-[0]" onChange={e => handleInputChange(index, e)} ></input>
+                                <div class="relative -top-[23px] -right-[280px] text-[20px] rounded-r-[30px] text-center pt-[10px] border-l-[0px] w-[50px] h-[50px] border-solid border-[1px] border-[#e65151] bg-[#000] text-[#ffffff69] z-[1]">%</div>
+                                <span class="text-[#E80A0A] relative left-[118px]">{item.discountValid}</span>
                             </div>
-                            {productDatas.length > 1 && (<button type="button" class="bg-[#3F66D9] w-[80px] h-[35px] relative -right-[210px] top-[68px] rounded-[30px] border-solid border-[1px] items-center border-[#fff] hover:bg-[#fff] hover:border-[#3F66D9] hover:border-[3px]" onClick={() => handleRemove(index)}>Remove</button>)}
+                            <div class="block">
+                                <label class="text-[#C5f602] text-[26px] relative -top-[60px] -right-[280px]">Price</label>
+                                <input type="text" name="price" value={item.rate} class="text-[18px] relative -top-[10px] -right-[140px] w-[125px] h-[50px] rounded-[25px] rounded-r-[0px] border-solid border-[1px] border-[#e65151] bg-[#000] pl-[50px] line-through decoration-black text-[#C5f602]"></input>
+                                <input type="text" name="price" value={item.price} class="relative -top-[10px] -right-[118px] text-[18px] w-[125px] h-[50px] rounded-[25px] rounded-l-[0px] border-solid border-[1px] border-[#e65151] border-l-[0px] bg-[#000] pl-[0px] text-[#fff]" onChange={e => handleInputChange(index, e)}></input>
+                                <span class="text-[#E80A0A] relative top-[50px] -left-[60px]">{item.priceValid}</span>
+                            </div>
+                            {productDatas.length > 1 && (<button type="button" class="bg-[#3F66D9] w-[80px] h-[35px] relative -right-[120px] top-[68px] rounded-[30px] border-solid border-[1px] items-center border-[#fff] hover:bg-[#fff] hover:border-[#3F66D9] hover:border-[2px]" onClick={() => handleRemove(index)}>Remove</button>)}
                         </div>
                     </form>
                 ))}
