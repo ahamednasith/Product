@@ -13,7 +13,7 @@ const addProduct = async (req, res) => {
       rate: input.rate,
       discount: input.discount,
       price: input.price,
-      image: images[index].filename, 
+      image: images[index] ? images[index].filename : "", 
     }))
     const sellingPrice = await Product.bulkCreate(product);
     const count = await Product.count({ where: [{ productID }] });
@@ -64,16 +64,30 @@ const showAllProduct = async (req, res) => {
       where: {
         productID
       }
-    });
-    const productData = products.map(product => ({
-      id: product.id,
-      productID: product.productID,
-      rate: product.rate,
-      discount: product.discount,
-      price: product.price,
-      image:`http://localhost:3000/public/images/${product.image}`
-    }));
-    return res.status(200).json({ statuscode: 200, productData });
+    }); 
+    const image  = products.map((product)=>({
+      image:product.image
+    }))
+    if(image[0].image === ''){
+      const productData = products.map(product => ({
+        id: product.id,
+        productID: product.productID,
+        rate: product.rate,
+        discount: product.discount,
+        price: product.price,
+      }));
+      return res.status(200).json({ statuscode: 200, productData,image });
+    }else{
+      const productData = products.map(product => ({
+        id: product.id,
+        productID: product.productID,
+        rate: product.rate,
+        discount: product.discount,
+        price: product.price,
+        image:`http://localhost:3000/public/images/${product.image}`
+      }));
+      return res.status(200).json({ statuscode: 200, productData,image });
+    }
   } catch (error) {
     return res.status(500).json({ statuscode: 500, error: error.message });
   }
@@ -96,7 +110,7 @@ const editProduct = async (req, res) => {
       const rate = item.rate;
       const discount = item.discount;
       const price = item.price;
-      const image = images[index].filename
+      const image =images[index] ? images[index].filename : ""
       const product = await Product.count({ where: { productID, id } });
       if (product === 0) {
         const newProduct = await Product.create({ productID, rate, discount, price,image });

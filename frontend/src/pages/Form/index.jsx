@@ -3,9 +3,10 @@ import { Helmet } from "react-helmet";
 import './index.css';
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
+import remove from "../../images/remove.jpeg";
 
 export default function Form() {
-  const [products, setProducts] = useState([{ rate: '', discount: '', price: '', image: '',preview:'' }]);
+  const [products, setProducts] = useState([{ rate: '', discount: '', price: '', image: '', preview: '' }]);
   const navigate = useNavigate();
 
 
@@ -32,6 +33,13 @@ export default function Form() {
     setProducts([...products, product]);
   }
 
+  const imageRemove = (index) => {
+    const removeImage = [...products];
+    removeImage[index].image = "";
+    removeImage[index].preview = "";
+    setProducts(removeImage);
+  }
+
 
   const handleRemove = async (index) => {
     let data = [...products];
@@ -44,33 +52,29 @@ export default function Form() {
     const data = [...products];
     let valid = true;
     for (let i = 0; i < data.length; i++) {
-      if (data[i].image === "") {
+      if(products.length > 1 && data[i].image === ""){
         data[i].imageValid = "Image has Required";
         valid = false;
-    } else {
+      }else {
         data[i].imageValid = ""
-        valid = true;
-    }
+      }
       if (data[i].rate === "") {
         data[i].rateValid = "Rate has Required";
         valid = false;
       } else {
         data[i].rateValid = ""
-        valid = true;
       }
       if (data[i].discount === "") {
         data[i].discountValid = "Discount has Required";
         valid = false;
       } else {
         data[i].discountValid = ""
-        valid = true;
       }
       if (data[i].price === "") {
         data[i].priceValid = "Price has Required";
         valid = false;
       } else {
         data[i].priceValid = ""
-        valid = true;
       }
     }
     setProducts(data);
@@ -129,9 +133,9 @@ export default function Form() {
                 <div class="block">
                   <label class="text-[#C5f602] text-[26px] relative -top-[60px] left-[40px]">Image</label>
                   <input type="file" name="image" class="relative -top-[10px] -left-[100px] text-[18px] w-[200px] h-[50px] pt-[8px] rounded-[25px] border-solid border-[1px] border-[#e65151] bg-[#000] text-[#fff]" onChange={e => handleInput(index, e)}></input>
-                  <span class="text-[#E80A0A] relative top-[50px] -left-[270px]">{item.imageValid}</span>
+                  {products.length > 1 && (<span class="text-[#E80A0A] relative top-[50px] -left-[270px]">{item.imageValid}</span>)}
                 </div>
-                {item.preview && (<img src={item.preview} alt="preview" class="w-[200px] relative -left-[70px] -top-[10px] border-[1px]"/>)}
+                {item.preview && (<div style={{ position: "relative" }}><img src={item.preview} alt="preview" className="w-[200px] border-[1px]" /><button type="button" className="w-[20px] absolute -top-[10px] -right-[10px]" onClick={() => imageRemove(index)}><img src={remove} alt="remove" /></button></div>)}
                 <div class="block">
                   <label class="text-[#C5f602] text-[26px] relative -top-[60px] left-[145px]">Rate</label>
                   <input type="text" name="rate" placeholder="Product Rate" class="relative -top-[10px] left-[0px] text-[18px] w-[250px] h-[50px] rounded-[25px] border-solid border-[1px] border-[#e65151] bg-[#000] pl-[70px] text-[#fff]" onChange={e => handleInput(index, e)}></input>

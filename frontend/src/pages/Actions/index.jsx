@@ -3,6 +3,7 @@ import { Helmet } from "react-helmet";
 import axios from "axios";
 import './index.css';
 import { Link, useNavigate, useParams } from "react-router-dom";
+import remove from "../../images/remove.jpeg";
 
 
 
@@ -35,7 +36,12 @@ export default function Action() {
         setProductDatas(data)
     }
 
-
+    const imageRemove = (index) => {
+        const removeImage = [...productDatas];
+        removeImage[index].image = "";
+        removeImage[index].preview = "";
+        setProductDatas(removeImage);
+      }
     const handleInputChange = (index, e) => {
         const updatedProductDatas = [...productDatas];
         if (e.target.name === 'image') {
@@ -55,42 +61,38 @@ export default function Action() {
     };
 
 
-    const validation = (productDatas) => {
+    const validation = (products) => {
         const data = [...productDatas];
         let valid = true;
         for (let i = 0; i < data.length; i++) {
-            if (data[i].image === "") {
-                data[i].imageValid = "Image has Required";
-                valid = false;
-            } else {
-                data[i].imageValid = ""
-                valid = true;
-            }
-            if (data[i].rate === "") {
-                data[i].rateValid = "Rate has Required";
-                valid = false;
-            } else {
-                data[i].rateValid = ""
-                valid = true;
-            }
-            if (data[i].discount === "") {
-                data[i].discountValid = "Discount has Required";
-                valid = false;
-            } else {
-                data[i].discountValid = ""
-                valid = true;
-            }
-            if (data[i].price === "") {
-                data[i].priceValid = "Price has Required";
-                valid = false;
-            } else {
-                data[i].priceValid = ""
-                valid = true;
-            }
+          if(productDatas.length > 1 && !data[i].image){
+            data[i].imageValid = "Image has Required";
+            valid = false;
+          }else {
+            data[i].imageValid = ""
+          }
+          if (data[i].rate === "") {
+            data[i].rateValid = "Rate has Required";
+            valid = false;
+          } else {
+            data[i].rateValid = ""
+          }
+          if (data[i].discount === "") {
+            data[i].discountValid = "Discount has Required";
+            valid = false;
+          } else {
+            data[i].discountValid = ""
+          }
+          if (data[i].price === "") {
+            data[i].priceValid = "Price has Required";
+            valid = false;
+          } else {
+            data[i].priceValid = ""
+          }
         }
         setProductDatas(data);
         return valid;
-    }
+      }
 
 
     const handleEdit = async (e) => {
@@ -104,6 +106,9 @@ export default function Action() {
             formData.append(`products[${index}][price]`, item.price);
             formData.append('productImages', item.image)
         });
+        for( var item of formData.entries()){
+            console.log(item[0] + ',' + item[1])
+        }
         if (error) {
             try {
                 const response = await axios.post('http://localhost:3000/product/update', formData, {
@@ -146,9 +151,9 @@ export default function Action() {
                             <div class="block">
                                 <label class="text-[#C5f602] text-[26px] relative -top-[60px] left-[40px]">Image</label>
                                 <input type="file" name="image" class="relative -top-[10px] -left-[100px] text-[18px] w-[200px] h-[50px] pt-[8px] rounded-[25px] border-solid border-[1px] border-[#e65151] bg-[#000] text-[#fff]" onChange={e => handleInputChange(index, e)}></input>
-                                <span class="text-[#E80A0A] relative top-[50px] -left-[270px]">{item.imageValid}</span>
+                                {productDatas.length > 1 && (<span class="text-[#E80A0A] relative top-[50px] -left-[270px]">{item.imageValid}</span>)}
                             </div>
-                            {item.preview ? (<img src={item.preview} alt="preview" class="w-[200px] relative -left-[70px] -top-[10px] border-[1px]" />):item.image ? (<img src={item.image} alt="preview" class="w-[200px] relative -left-[70px] -top-[10px] border-[1px]" />):null}
+                            {item.preview ? (<div style={{ position: "relative" }}><img src={item.preview} alt="preview" className="w-[200px] border-[1px]" /><button type="button" className="w-[20px] absolute -top-[10px] -right-[10px]" onClick={() => imageRemove(index)}><img src={remove} alt="remove" /></button></div>):item.image ? (<div style={{ position: "relative" }}><img src={item.image} alt="preview" className="w-[200px] border-[1px]" /><button type="button" className="w-[20px] absolute -top-[10px] -right-[10px]" onClick={() => imageRemove(index)}><img src={remove} alt="remove" /></button></div>):null}
                             <div class="block">
                                 <label class="text-[#C5f602] text-[26px] relative -top-[60px] left-[145px]">Rate</label>
                                 <input type="text" name="rate" value={item.rate} placeholder="Product Rate" class="relative -top-[10px] left-[0px] text-[18px] w-[250px] h-[50px] rounded-[25px] border-solid border-[1px] border-[#e65151] bg-[#000] pl-[70px] text-[#fff]" onChange={e => handleInputChange(index, e)}></input>
