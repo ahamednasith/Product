@@ -1,5 +1,6 @@
 const express = require('express');
 const schema = require('../utils/joi');
+const jwt = require('../utils/helper');
 const controller = require('../controllers/productController');
 const router = express.Router();
 const multer = require('multer');
@@ -15,9 +16,13 @@ const upload = multer({
     storage: storage,
 }).array('productImages',10)
 
+router.post('/signup',controller.signUp);
+
+router.post('/verify',jwt.verifyToken,controller.verify);
+
 router.post('/product', schema.validate,upload, controller.addProduct);
 
-router.get('/product', controller.showProduct);
+router.get('/product/:userID',controller.showProduct);
 
 router.post('/product/all', controller.showAllProduct);
 
