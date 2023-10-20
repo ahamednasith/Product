@@ -5,34 +5,34 @@ const db = require('../models/index');
 const bcrypt = require('bcrypt');
 const User = db.user;
 
-const generateToken = (userID,loginDate) => {
-    let token = jwt.sign({userID:userID},loginDate);
+const generateToken = (userID, loginDate) => {
+    let token = jwt.sign({ userID: userID }, loginDate);
     return token;
 };
 
-const verifyToken = async(req,res,next) => {
+const verifyToken = async (req, res, next) => {
     let token = req.headers['authorization'];
-    if(token){
+    if (token) {
         tokenPart = token.split(" ");
         token = tokenPart[1];
         const decodedToken = jwt.decode(token);
         const userID = decodedToken.userID;
-        const user = await User.findOne({where:{userID:userID}});
-        if(user){
+        const user = await User.findOne({ where: { userID: userID } });
+        if (user) {
             const date = user.loginDate;
             const loginDate = moment(date).format('YYYY-MM-DD HH:mm:ss');
-            jwt.verify(token,loginDate,(err) => {
-                if(err){
-                    return res.status(402).json({stautscode:402,message:"UnAuthorized",err});
+            jwt.verify(token, loginDate, (err) => {
+                if (err) {
+                    return res.status(402).json({ stautscode: 402, message: "UnAuthorized", err });
                 }
-                req.user=user;
+                req.user = user;
                 next();
             })
         } else {
-            return res.status(404).json({stautscode:404,message:"Token Has Invalid"});
+            return res.status(404).json({ stautscode: 404, message: "Token Has Invalid" });
         }
-    }else {
-        return res.status(422).json({statuscode:422,message:"Token Has Invalid"});
+    } else {
+        return res.status(422).json({ statuscode: 422, message: "Token Has Invalid" });
     }
 };
 
@@ -42,15 +42,15 @@ const iv = "7E892875A42C59A3";
 
 
 function encrypt(value) {
-    let cipher = crypto.createCipheriv(algorithm,key,iv);
-    let encrypted = cipher.update(value,'utf-8','hex');
+    let cipher = crypto.createCipheriv(algorithm, key, iv);
+    let encrypted = cipher.update(value, 'utf-8', 'hex');
     encrypted += cipher.final('hex');
     return encrypted;
 }
 
-function decrypt(value){
-    let decipher = crypto.createDecipheriv(algorithm,key,iv);
-    let decrypted = decipher.update(value,'hex','utf-8');
+function decrypt(value) {
+    let decipher = crypto.createDecipheriv(algorithm, key, iv);
+    let decrypted = decipher.update(value, 'hex', 'utf-8');
     decrypted += decipher.final('utf-8');
     return decrypted;
 }
@@ -65,4 +65,4 @@ async function crypt(value) {
     }
 }
 
-module.exports = { generateToken,verifyToken,encrypt,decrypt,crypt};
+module.exports = { generateToken, verifyToken, encrypt, decrypt, crypt };

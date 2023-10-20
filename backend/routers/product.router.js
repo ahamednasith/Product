@@ -14,19 +14,19 @@ const storage = multer.diskStorage({
 });
 const upload = multer({
     storage: storage,
-}).array('productImages',10)
+}).fields([{ name: "sectionImages", maxCount: 20 }, { name: "productImages", maxCount: 10 }]);
 
-router.post('/signup',controller.signUp);
+router.post('/signup', controller.signUp);
 
-router.post('/verify',jwt.verifyToken,controller.verify);
+router.post('/verify', jwt.verifyToken, controller.verify);
 
-router.post('/product', schema.validate,upload, controller.addProduct);
+router.post('/product', schema.validate, upload, controller.addProduct);
 
-router.get('/product/:userID',controller.showProduct);
+router.get('/product/:userID', controller.showProduct);
 
 router.post('/product/all', controller.showAllProduct);
 
-router.post('/product/update',upload,controller.editProduct);
+router.post('/product/update', upload, controller.editProduct);
 
 router.post('/product/delete', controller.deleteProduct);
 

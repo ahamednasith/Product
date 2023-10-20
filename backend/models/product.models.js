@@ -6,6 +6,18 @@ module.exports = (sequelize, DataTypes) => {
         productID: {
             type: DataTypes.INTEGER
         },
+        productName: {
+            type: DataTypes.STRING
+        },
+        description: {
+            type: DataTypes.STRING
+        },
+        category: {
+            type: DataTypes.STRING
+        },
+        productTag: {
+            type: DataTypes.STRING,
+        },
         rate: {
             type: DataTypes.INTEGER
         },
@@ -15,7 +27,7 @@ module.exports = (sequelize, DataTypes) => {
         price: {
             type: DataTypes.INTEGER
         },
-        image:{
+        image: {
             type: DataTypes.STRING
         },
         count: {

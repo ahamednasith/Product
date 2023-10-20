@@ -17,6 +17,6 @@ const validate = (req, res, next) => {
         return res.status(401).json({ statuscode: 401, error: error.message })
     }
     next();
-}
+};
 
 module.exports = { validate };
